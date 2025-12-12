@@ -67,6 +67,7 @@ class PersonManager:
              save_yaml(bio_path, data)
         
         data['slug'] = os.path.join(shard, dir_name) # relative path as slug/locator
+        data['display_name'] = f"{family}, {given}".strip(', ')
         return data
 
     def list_people(self) -> List[Dict]:

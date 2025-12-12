@@ -25,7 +25,7 @@
             Ingest Recordings
         </h1>
         <p class="text-gray-400 text-center mb-8">
-            Drag and drop audio/video interviews here.
+            Select a person and drag their interview files below.
             <br>
             <span class="text-xs text-gray-500">Supported: MP4, MOV, MKV, MP3, WAV, M4A</span>
         </p>
@@ -33,6 +33,24 @@
         <!-- Upload Form -->
         <form id="upload-form" hx-post="/api/import/recording" hx-encoding="multipart/form-data"
             hx-target="#upload-status" hx-swap="innerHTML">
+
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <label for="person_slug" class="block text-sm font-medium text-gray-300">Select Person</label>
+                    <button type="button"
+                        onclick="document.getElementById('create-person-modal').classList.remove('hidden')"
+                        class="text-sm text-blue-400 hover:text-blue-300">
+                        + Create New Person
+                    </button>
+                </div>
+                <select name="person_slug" id="person_slug"
+                    class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="" disabled selected>-- Choose a Person --</option>
+                    {% for person in people %}
+                    <option value="{{ person.slug }}">{{ person.display_name }} ({{ person.id }})</option>
+                    {% endfor %}
+                </select>
+            </div>
 
             <div id="drop-zone"
                 class="relative border-2 border-dashed border-gray-600 rounded-xl p-12 flex flex-col items-center justify-center transition-all duration-200 hover:border-blue-500 group cursor-pointer bg-gray-800/50">
@@ -52,14 +70,60 @@
                 </div>
             </div>
 
-            <!-- Progress Indicator (HTMX hook needed for real progress, simplified for now) -->
+            <!-- Progress Indicator -->
             <div id="upload-status" class="mt-6 text-center"></div>
         </form>
+
+        <!-- Create Person Modal (Moved outside form) -->
+        <div id="create-person-modal"
+            class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+            <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 w-full max-w-md shadow-2xl relative">
+                <h2 class="text-xl font-bold mb-4 text-white">Create New Person</h2>
+
+                <button type="button" onclick="document.getElementById('create-person-modal').classList.add('hidden')"
+                    class="absolute top-4 right-4 text-gray-400 hover:text-white">✕</button>
+
+                <div id="create-person-form-container">
+                    <form hx-post="/api/people" hx-target="#person_slug" hx-swap="beforeend"
+                        hx-on::after-request="if(event.detail.successful) { document.getElementById('create-person-modal').classList.add('hidden'); document.getElementById('create-person-form').reset(); }">
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Grid Name (Surname)</label>
+                                <input type="text" name="family_name" required
+                                    class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Given Name</label>
+                                <input type="text" name="given_name" required
+                                    class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Date of Birth</label>
+                                <input type="date" name="dob" required
+                                    class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-1">Short Bio (Optional)</label>
+                                <textarea name="bio" rows="2"
+                                    class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white focus:border-blue-500 focus:outline-none"></textarea>
+                            </div>
+
+                            <button type="submit"
+                                class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-medium transition-colors">
+                                Create Person
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
 
         <script>
             const dropZone = document.getElementById('drop-zone');
             const fileInput = document.getElementById('file-input');
             const form = document.getElementById('upload-form');
+            const personSelect = document.getElementById('person_slug');
 
             // Drag effects
             ['dragenter', 'dragover'].forEach(eventName => {
@@ -76,16 +140,16 @@
                 }, false);
             });
 
-            // Handle Drop (HTMX handles the submit via the input change if we trigger it, 
-            // but for D&D we might need to manually trigger the submit or just rely on file input change)
-
-            // Actually, HTMX works best if the input changes.
-            // But 'drop' event on a div doesn't automatically set the input file.
-            // We need to sync them.
+            // Handle Drop
             dropZone.addEventListener('drop', (e) => {
                 const dt = e.dataTransfer;
                 const files = dt.files;
                 fileInput.files = files;
+
+                if (!personSelect.value) {
+                    alert("Please select a person first!");
+                    return;
+                }
 
                 // Trigger HTMX processing
                 htmx.trigger(form, 'submit');
@@ -93,6 +157,12 @@
 
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
+                    if (!personSelect.value) {
+                        alert("Please select a person first!");
+                        // Clear input so they can try again
+                        fileInput.value = "";
+                        return;
+                    }
                     htmx.trigger(form, 'submit');
                 }
             });
@@ -112,8 +182,7 @@
             });
 
             document.body.addEventListener('htmx:afterRequest', function (evt) {
-                if (evt.detail.successful) return;
-                // Error handling if needed
+                // Clean up if needed, or show success
             });
         </script>
     </div>

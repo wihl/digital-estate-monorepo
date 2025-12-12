@@ -3,16 +3,16 @@ version: '3.8'
 services:
   backend:
     build:
-      context: ./apps/desktop-private/backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/desktop-private/backend/Dockerfile
     ports:
       - "8000:8000"
     volumes:
-      - .:/app
+      - ./apps/desktop-private/backend:/app/apps/desktop-private/backend
+      - ./packages:/app/packages # Enable hot-reloading for shared logic
       # - /Volumes/DestateSSD:/data # SSD Not mounted
       - ./tmp_data:/data # Fallback for local testing
     environment:
-      - PYTHONPATH=/app/packages:/app/packages/ingest-logic/src
       - SSD_MOUNT_PATH=/data
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 

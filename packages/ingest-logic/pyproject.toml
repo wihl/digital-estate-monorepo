@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ingest_logic"
+version = "0.1.0"
+authors = [
+  { name="Destate Team", email="team@destate.com" },
+]
+description = "Core logic for ingestion and people management"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/destate/ingest-logic"
+
+[tool.setuptools.packages.find]
+where = ["src"]

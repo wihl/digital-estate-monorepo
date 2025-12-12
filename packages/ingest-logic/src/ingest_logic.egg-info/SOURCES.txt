@@ -1,0 +1,12 @@
+pyproject.toml
+src/ingest_logic/__init__.py
+src/ingest_logic.egg-info/PKG-INFO
+src/ingest_logic.egg-info/SOURCES.txt
+src/ingest_logic.egg-info/dependency_links.txt
+src/ingest_logic.egg-info/top_level.txt
+src/ingest_logic/common/__init__.py
+src/ingest_logic/common/fs_utils.py
+src/ingest_logic/common/yaml_utils.py
+src/ingest_logic/people/__init__.py
+src/ingest_logic/people/identity.py
+src/ingest_logic/people/manager.py
