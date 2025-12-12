@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.8'
 
 services:
   backend:
@@ -9,9 +9,10 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
-      - /Volumes/DestateSSD:/data
+      # - /Volumes/DestateSSD:/data # SSD Not mounted
+      - ./tmp_data:/data # Fallback for local testing
     environment:
-      - PYTHONPATH=/app/packages
+      - PYTHONPATH=/app/packages:/app/packages/ingest-logic/src
       - SSD_MOUNT_PATH=/data
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 

@@ -1,0 +1,21 @@
+type: object
+properties:
+  id:
+    type: string
+    format: uuid
+    description: Stable unique identifier
+  name:
+    type: string
+    description: Display name of the person
+  bio:
+    type: string
+    description: Markdown biography
+  birth_date:
+    type: string
+    format: date
+  death_date:
+    type: string
+    format: date
+required:
+  - id
+  - name
