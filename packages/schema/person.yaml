@@ -2,20 +2,108 @@ type: object
 properties:
   id:
     type: string
-    format: uuid
-    description: Stable unique identifier
-  name:
-    type: string
-    description: Display name of the person
-  bio:
-    type: string
-    description: Markdown biography
-  birth_date:
-    type: string
-    format: date
-  death_date:
-    type: string
-    format: date
+    description: "Base36 encoded identity string"
+  legacy_ids:
+    type: object
+    properties:
+      gedcom_id: { type: string }
+      ancestry_id: { type: string }
+      national_id: { type: string }
+  
+  names:
+    type: array
+    items:
+      type: object
+      properties:
+        type: { type: string, enum: ["primary", "birth", "married", "aka"] }
+        given: { type: string }
+        surname: { type: string }
+        prefix: { type: string }
+        suffix: { type: string }
+        nickname: { type: string }
+  
+  demographics:
+    type: object
+    properties:
+      sex: { type: string, enum: ["M", "F", "X"] }
+      gender_identity: { type: string }
+      nationality: { type: array, items: { type: string } }
+  
+  vitals:
+    type: object
+    properties:
+      birth:
+        type: object
+        properties:
+          date: { type: string }
+          place:
+            type: object
+            properties:
+              name: { type: string }
+              coordinates: 
+                type: object
+                properties: { lat: { type: number }, long: { type: number } }
+      death:
+        type: object
+        properties:
+          date: { type: string }
+          place: { type: object }
+          cause: { type: string }
+      burial_cremation:
+        type: object
+        properties:
+          type: { type: string }
+          location: { type: object }
+
+  digital_footprint:
+    type: object
+    properties:
+      emails:
+        type: array
+        items:
+          type: object
+          properties:
+            address: { type: string }
+            status: { type: string }
+      handles:
+        type: array
+        items:
+          type: object
+          properties:
+            platform: { type: string }
+            username: { type: string }
+            url: { type: string }
+      domains:
+        type: array
+        items:
+          type: object
+          properties:
+            url: { type: string }
+            registrar: { type: string }
+
+  biometrics:
+    type: object
+    properties:
+      height_cm: { type: number }
+      eye_color: { type: string }
+      genomics:
+        type: object
+        properties:
+          haplogroups:
+            type: object
+            properties:
+              maternal: { type: string }
+              paternal: { type: string }
+  
+  relationships:
+    type: object
+    properties:
+      parents:
+        type: array
+        items:
+          type: object
+          properties:
+            person_id: { type: string }
+            type: { type: string }
 required:
   - id
-  - name

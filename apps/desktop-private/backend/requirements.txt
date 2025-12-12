@@ -1,3 +1,6 @@
 fastapi
 uvicorn
 ruamel.yaml
+jinja2
+python-multipart
+aiofiles

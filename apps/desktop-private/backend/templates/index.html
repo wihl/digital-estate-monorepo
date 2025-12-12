@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recordings Ingestion</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <style>
+        .drag-active {
+            border-color: #4ade80 !important;
+            background-color: #f0fdf4 !important;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-white min-h-screen font-sans flex items-center justify-center">
+
+    <div class="max-w-2xl w-full p-8 bg-gray-800 rounded-2xl shadow-2xl border border-gray-700">
+        <h1
+            class="text-3xl font-bold mb-2 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400">
+            Ingest Recordings
+        </h1>
+        <p class="text-gray-400 text-center mb-8">
+            Drag and drop audio/video interviews here.
+            <br>
+            <span class="text-xs text-gray-500">Supported: MP4, MOV, MKV, MP3, WAV, M4A</span>
+        </p>
+
+        <!-- Upload Form -->
+        <form id="upload-form" hx-post="/api/import/recording" hx-encoding="multipart/form-data"
+            hx-target="#upload-status" hx-swap="innerHTML">
+
+            <div id="drop-zone"
+                class="relative border-2 border-dashed border-gray-600 rounded-xl p-12 flex flex-col items-center justify-center transition-all duration-200 hover:border-blue-500 group cursor-pointer bg-gray-800/50">
+
+                <input type="file" name="file" id="file-input"
+                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="video/*,audio/*">
+
+                <div class="text-center pointer-events-none group-hover:scale-110 transition-transform duration-200">
+                    <svg class="w-16 h-16 text-gray-500 mb-4 mx-auto group-hover:text-blue-400" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                        </path>
+                    </svg>
+                    <p class="text-lg font-medium text-gray-300 group-hover:text-white">Drop file to upload</p>
+                    <p class="text-sm text-gray-500 mt-1">or click to browse</p>
+                </div>
+            </div>
+
+            <!-- Progress Indicator (HTMX hook needed for real progress, simplified for now) -->
+            <div id="upload-status" class="mt-6 text-center"></div>
+        </form>
+
+        <script>
+            const dropZone = document.getElementById('drop-zone');
+            const fileInput = document.getElementById('file-input');
+            const form = document.getElementById('upload-form');
+
+            // Drag effects
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    dropZone.classList.add('drag-active');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    dropZone.classList.remove('drag-active');
+                }, false);
+            });
+
+            // Handle Drop (HTMX handles the submit via the input change if we trigger it, 
+            // but for D&D we might need to manually trigger the submit or just rely on file input change)
+
+            // Actually, HTMX works best if the input changes.
+            // But 'drop' event on a div doesn't automatically set the input file.
+            // We need to sync them.
+            dropZone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                fileInput.files = files;
+
+                // Trigger HTMX processing
+                htmx.trigger(form, 'submit');
+            });
+
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    htmx.trigger(form, 'submit');
+                }
+            });
+
+            // HTMX Events for status
+            document.body.addEventListener('htmx:configRequest', function (evt) {
+                const statusDiv = document.getElementById('upload-status');
+                statusDiv.innerHTML = `
+                    <div class="flex items-center justify-center space-x-2 text-blue-400">
+                        <svg class="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Uploading... Please wait.</span>
+                    </div>
+                 `;
+            });
+
+            document.body.addEventListener('htmx:afterRequest', function (evt) {
+                if (evt.detail.successful) return;
+                // Error handling if needed
+            });
+        </script>
+    </div>
+
+</body>
+
+</html>

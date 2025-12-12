@@ -11,7 +11,10 @@ def get_manager():
     return PersonManager(mount_path)
 
 class PersonCreate(BaseModel):
-    name: str
+    family_name: str
+    given_name: str
+    dob: str # ISO8601
+    suffix: str = ""
     bio: str = ""
 
 @router.get("/")
@@ -21,7 +24,13 @@ def list_people():
 @router.post("/")
 def create_person(person: PersonCreate):
     try:
-        return get_manager().create_person(person.name, person.bio)
+        return get_manager().create_person(
+            family=person.family_name,
+            given=person.given_name,
+            dob=person.dob,
+            suffix=person.suffix,
+            bio=person.bio
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
