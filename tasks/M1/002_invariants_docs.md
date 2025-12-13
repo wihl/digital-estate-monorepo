@@ -28,4 +28,8 @@ Create minimal “tribal knowledge” docs to constrain future AI work.
 - N/A (docs)
 
 ## Definition of Done
-- [ ] Files exist and are concise
+- [x] Files exist and are concise
+
+## Status
+- [x] Completed (2025-12-13)
+
