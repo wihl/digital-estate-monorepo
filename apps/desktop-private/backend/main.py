@@ -1,11 +1,11 @@
-# Trigger reload (fix display_name)
-from fastapi import FastAPI, HTTPException, Request, UploadFile, File, Form
+from fastapi import FastAPI, HTTPException, Request, UploadFile, File, Form, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from ingest_logic.common.fs_utils import write_safe, write_safe_stream
 from ingest_logic.common.yaml_utils import load_yaml, save_yaml
 from ingest_logic.people.manager import PersonManager
+from ingest_logic.transcription import TranscriptionManager
 import os
 import shutil
 from routers import people
@@ -25,10 +25,38 @@ app.include_router(people.router)
 
 templates = Jinja2Templates(directory="templates")
 
-# Default to ./tmp_data for local dev if env var not set
-# This matches the docker-compose volume mapping: ./tmp_data:/data
 STORAGE_ROOT = os.getenv("SSD_MOUNT_PATH", os.path.abspath("./tmp_data"))
 person_manager = PersonManager(STORAGE_ROOT)
+transcription_manager = TranscriptionManager()
+
+# Background Task
+def process_transcription(file_path: str, meta_path: str):
+    try:
+        print(f"Starting transcription for {file_path}...")
+        transcript = transcription_manager.transcribe(file_path)
+        
+        # Save transcript
+        txt_path = Path(file_path).with_suffix('.txt')
+        with open(txt_path, 'w') as f:
+            f.write(transcript)
+            
+        # Update metadata
+        if os.path.exists(meta_path):
+            meta = load_yaml(meta_path)
+            meta['ingest_status'] = 'transcribed'
+            # meta['transcript_path'] = str(txt_path) 
+            save_yaml(meta_path, meta)
+            
+        print(f"Transcription complete: {txt_path}")
+        
+    except Exception as e:
+        print(f"Transcription failed for {file_path}: {e}")
+        # Update metadata to failed
+        if os.path.exists(meta_path):
+            meta = load_yaml(meta_path)
+            meta['ingest_status'] = 'transcription_failed'
+            meta['error_message'] = str(e)
+            save_yaml(meta_path, meta)
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
@@ -49,9 +77,7 @@ async def create_person(
             dob=dob,
             bio=bio
         )
-        # Return an option tag to be appended to the select list
         return f'<option value="{person["slug"]}" selected>{person["display_name"]} ({person["id"]})</option>'
-        
     except Exception as e:
         import traceback
         traceback.print_exc()
@@ -59,8 +85,9 @@ async def create_person(
 
 @app.post("/api/import/recording")
 async def import_recording(
+    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
-    person_slug: str = Form(...)
+    person_slug: str = Form(...),
 ):
     if not file.filename:
          raise HTTPException(status_code=400, detail="No file filename")
@@ -72,22 +99,13 @@ async def import_recording(
 
     content_type = file.content_type or ""
     
-    # Determine type
     if "video" in content_type:
         subdir = "video"
     elif "audio" in content_type:
         subdir = "audio"
     else:
-        # Fallback based on extension if content-type is missing/generic?
-        # For now default to video as per prev logic, but let's be smarter if possible.
-        # Simple for now.
         subdir = "video"
 
-    # Directory Structure: people/{slug}/recordings/{audio|video}
-    # Note: person_slug is relative path from people root, e.g. "shard/Name--ID"
-    
-    # We need to construct the full path manually since Manager doesn't manage recordings yet explicitly
-    # But we know the structure.
     person_dir = os.path.join(STORAGE_ROOT, "people", person_slug)
     target_dir = os.path.join(person_dir, "recordings", subdir)
     
@@ -96,12 +114,8 @@ async def import_recording(
     target_path = os.path.join(target_dir, file.filename)
     
     try:
-        # 1. Save File Securely
         await write_safe_stream(target_path, file)
         
-        # 2. Generate sidecar
-        # Fix: Remove extension from filename for yaml sidecar
-        # e.g. interview.mp4 -> interview.yaml (not interview.mp4.yaml)
         file_stem = Path(file.filename).stem
         meta_path = os.path.join(target_dir, f"{file_stem}.yaml")
         
@@ -111,8 +125,11 @@ async def import_recording(
             "ingest_status": "pending_transcription",
         }
         save_yaml(meta_path, metadata)
+        
+        # Trigger background transcription
+        background_tasks.add_task(process_transcription, target_path, meta_path)
 
-        return {"status": "success", "filename": file.filename, "path": target_path}
+        return {"status": "success", "filename": file.filename, "path": target_path, "message": "Upload complete. Transcription queued."}
 
     except Exception as e:
         import traceback

@@ -14,18 +14,7 @@ services:
       - ./tmp_data:/data # Fallback for local testing
     environment:
       - SSD_MOUNT_PATH=/data
+      - TRANSCRIPTION_PROVIDER=local # Change to 'gemini' to use Cloud
+      # - GEMINI_API_KEY=your_key_here
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
-  frontend:
-    build:
-      context: ./apps/desktop-private/frontend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./apps/desktop-private/frontend:/app
-      - /app/node_modules
-    depends_on:
-      - backend
-    environment:
-      - CHOKIDAR_USEPOLLING=true
