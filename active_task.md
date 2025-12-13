@@ -1,4 +1,4 @@
-Current task: tasks/M1/002_invariants_docs.md
+Current task: tasks/M1/003_config_archive_root.md
 Rules:
 - Follow INVARIANTS.md (filesystem source of truth; SQLite is disposable index; ruamel.yaml round-trip).
 - Implement only what is in the current task.

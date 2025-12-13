@@ -6,6 +6,8 @@ from ingest_logic.common.fs_utils import write_safe, write_safe_stream
 from ingest_logic.common.yaml_utils import load_yaml, save_yaml
 from ingest_logic.people.manager import PersonManager
 from ingest_logic.transcription import TranscriptionManager
+from ingest_logic.config import ConfigManager
+from pydantic import BaseModel
 import os
 import shutil
 from routers import people
@@ -27,7 +29,9 @@ templates = Jinja2Templates(directory="templates")
 
 STORAGE_ROOT = os.getenv("SSD_MOUNT_PATH", os.path.abspath("./tmp_data"))
 person_manager = PersonManager(STORAGE_ROOT)
+
 transcription_manager = TranscriptionManager()
+config_manager = ConfigManager()
 
 # Background Task
 def process_transcription(file_path: str, meta_path: str):
@@ -141,6 +145,19 @@ async def import_recording(
 def health_check():
     return {"status": "ok", "message": "Backend is running"}
 
-@app.get("/api/config")
+@app.get("/config")
 def read_config():
-    return {"environment": "local-dev", "storage": "ExFAT", "mount": STORAGE_ROOT}
+    cfg = config_manager.load()
+    return cfg
+
+class ArchiveRootRequest(BaseModel):
+    path: str
+
+@app.post("/config/archive-root")
+def set_archive_root(req: ArchiveRootRequest):
+    p = Path(req.path)
+    if not p.exists() or not p.is_dir():
+        raise HTTPException(status_code=400, detail="Path does not exist or is not a directory")
+    
+    config_manager.set_archive_root(str(p.resolve()))
+    return {"status": "updated", "archive_root": str(p.resolve())}

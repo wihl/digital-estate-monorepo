@@ -29,6 +29,7 @@ yarn-error.log*
 
 # Project Specific
 tmp_data/
+tmp_config/
 coverage/
 *.log
 .pytest_cache/

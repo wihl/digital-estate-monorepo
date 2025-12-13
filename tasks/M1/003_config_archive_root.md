@@ -21,5 +21,8 @@ Persist and retrieve Archive Root path via backend endpoints.
 - POST sets a valid existing path and GET returns it.
 
 ## Definition of Done
-- [ ] Config persists across backend restarts
-- [ ] Clear error on invalid path
+- [x] Config persists across backend restarts
+- [x] Clear error on invalid path
+
+## Status
+- [x] Completed (2025-12-13)
