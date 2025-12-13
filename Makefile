@@ -48,7 +48,7 @@ Here is the diff:\n\n$$DIFF"'
 
 test: ## Run tests (requires running backend)
 	@echo "Running tests..."
-	@docker compose exec -T backend bash -c "if [ -d /app/packages/ingest-logic/tests ]; then pytest /app/packages/ingest-logic/tests; else echo 'Test directory not found inside container.'; fi"
+	@docker compose exec -T backend bash -c "python -m pytest"
 
 tests: test ## Alias for test
 
