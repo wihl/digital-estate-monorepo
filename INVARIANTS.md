@@ -21,3 +21,7 @@ These rules are non-negotiable architectural constraints.
 - **No Symlinks**: Do not use symlinks.
 - **Case-Insensitivity**: Treat `File.txt` and `file.txt` as the same file.
 - **Path Lengths**: Keep directory nesting reasonable.
+
+## 5. Return useful error messages and codes
+- When a task fails, return a useful error message and code.
+- Do not roll many different errors into a generic HTTP 400 or "Internal Server Error".

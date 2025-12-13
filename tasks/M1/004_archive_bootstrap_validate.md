@@ -25,5 +25,8 @@ When Archive Root is set, validate expected structure and initialize missing fol
 - Setting to read-only dir fails with helpful error.
 
 ## Definition of Done
-- [ ] Initialization is deterministic
-- [ ] Errors are actionable
+- [x] Initialization is deterministic
+- [x] Errors are actionable
+
+## Status
+- [x] Completed (2025-12-13)

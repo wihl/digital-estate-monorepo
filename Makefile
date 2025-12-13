@@ -46,9 +46,9 @@ Focus on correctness, MVP constraints, and anything likely to break docker compo
 Avoid large refactors; suggest only necessary fixes. \
 Here is the diff:\n\n$$DIFF"'
 
-test: ## Run tests (Placeholder)
+test: ## Run tests (requires running backend)
 	@echo "Running tests..."
-	docker compose exec backend pytest || echo "No tests infrastructure set up yet, skipping."
+	@docker compose exec -T backend bash -c "if [ -d /app/packages/ingest-logic/tests ]; then pytest /app/packages/ingest-logic/tests; else echo 'Test directory not found inside container.'; fi"
 
 tests: test ## Alias for test
 

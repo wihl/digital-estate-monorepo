@@ -12,6 +12,7 @@ import os
 import shutil
 from routers import people
 from pathlib import Path
+from ingest_logic.archive import bootstrap_archive
 
 app = FastAPI()
 
@@ -155,9 +156,18 @@ class ArchiveRootRequest(BaseModel):
 
 @app.post("/config/archive-root")
 def set_archive_root(req: ArchiveRootRequest):
-    p = Path(req.path)
-    if not p.exists() or not p.is_dir():
-        raise HTTPException(status_code=400, detail="Path does not exist or is not a directory")
+    # Normalize path once
+    p = Path(req.path).expanduser().resolve()
     
-    config_manager.set_archive_root(str(p.resolve()))
-    return {"status": "updated", "archive_root": str(p.resolve())}
+    try:
+        bootstrap_archive(p)
+    except (ValueError, FileNotFoundError) as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except PermissionError as e:
+        raise HTTPException(status_code=403, detail=f"Permission denied: {e}")
+    except OSError as e:
+        print(f"Critical error initializing archive root: {e}") # Log to stdout/stderr
+        raise HTTPException(status_code=500, detail="Failed to initialize archive root due to an internal system error.")
+    
+    config_manager.set_archive_root(str(p))
+    return {"status": "updated", "archive_root": str(p)}

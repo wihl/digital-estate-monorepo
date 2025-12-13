@@ -5,5 +5,5 @@
 - Each task includes: Goal, Scope/Non-goals, Steps, Acceptance checks, DoD.
 
 Conventions:
-- One task => one PR (recommended).
+- One task => one commit (recommended).
 - If a bug is found, create a new task under tasks/REGRESSIONS/.
