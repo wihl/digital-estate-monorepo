@@ -5,7 +5,6 @@ Create a runnable repo skeleton with FastAPI backend and Jinja2/HTMX frontend, p
 
 ## Scope
 - Add backend scaffold (FastAPI) with /health.
-- Add frontend scaffold with a placeholder page.
 - Add Makefile (or just scripts) so later tasks can run predictable commands.
 
 ## Non-goals
@@ -13,17 +12,15 @@ Create a runnable repo skeleton with FastAPI backend and Jinja2/HTMX frontend, p
 - No DB yet.
 
 ## Steps
-1) Create folders: backend/, frontend/, tools/, tasks/.
-2) Backend: FastAPI app with GET /health returning { "ok": true }.
-3) Frontend: minimal app that loads and shows "Digital Estate MVP".
-4) Add dev commands:
+1) Create folders: backend/, f tools/, tasks/.
+2) Backend: FastAPI app with GET /health returning {"status": "ok", "message": "Backend is running"}.
+3) Add dev commands:
    - backend: `make dev-backend` (or equivalent)
-   - frontend: `make dev-frontend`
    - tests placeholder: `make test` (even if minimal)
 
 ## Acceptance checks
 - `make dev-backend` starts server and `curl localhost:8000/health` returns ok.
-- `make dev-frontend` starts UI and loads in browser.
+
 
 ## Definition of Done
 - [ ] Repo runs backend + frontend locally
