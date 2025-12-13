@@ -4,14 +4,15 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Copy the shared package and install it
+# Copy the shared package and install it
 COPY packages/ingest-logic ./packages/ingest-logic
-RUN pip install -e ./packages/ingest-logic
+RUN --mount=type=cache,target=/root/.cache/pip pip install -e ./packages/ingest-logic
 
 # Now setup the backend
 WORKDIR /app/apps/desktop-private/backend
 
 COPY apps/desktop-private/backend/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
 
 # Copy backend code
 COPY apps/desktop-private/backend .

@@ -15,41 +15,28 @@ A minimal viable product for managing digital estate assets, focused on ingestio
 
 ## Getting Started
 
-### Running with Docker (Recommended)
-The easiest way to run the application is via Docker Compose:
+### Getting Started
+
+We use `make` to manage the Docker-based development environment.
 
 ```bash
-# Build and start services
-docker compose up --build
+# Start the full stack (Backend + UI)
+make dev
+
+# View application logs
+make logs
+
+# Run tests
+make test
+
+# Open a shell inside the backend container
+make shell
+
+# Cleanup temporary files
+make clean
 ```
 
 Access the application at: http://localhost:8000
-
-### Local Development
-To run the backend locally without Docker:
-
-1.  **Navigate to backend**:
-    ```bash
-    cd apps/desktop-private/backend
-    ```
-
-2.  **Install dependencies**:
-    ```bash
-    # Create venv
-    python3.11 -m venv venv
-    source venv/bin/activate
-    
-    # Install backend deps
-    pip install -r requirements.txt
-    
-    # Install shared logic (editable mode)
-    pip install -e ../../../packages/ingest-logic
-    ```
-
-3.  **Run Server**:
-    ```bash
-    uvicorn main:app --reload
-    ```
 
 ## Configuration
 - **TRANSCRIPTION_PROVIDER**: Control transcription engine. Options: `local` (default) or `gemini`.

@@ -1,9 +1,12 @@
-fastapi
-uvicorn
-ruamel.yaml
-jinja2
-python-multipart
-aiofiles
-openai-whisper
-google-generativeai
-ffmpeg-python
+fastapi>=0.124,<1.0.0
+uvicorn>=0.38,<1.0.0
+ruamel.yaml>=0.18,<1.0.0
+jinja2>=3.1,<4.0.0
+python-multipart>=0.0.20,<1.0.0
+aiofiles>=25.1,<26.0.0
+# Whisper uses date-based versioning, pinning exact or >= is tricky. 
+# Pinning to this build to ensure consistency.
+openai-whisper==20250625
+google-generativeai>=0.8,<1.0.0
+ffmpeg-python>=0.2.0,<1.0.0
+pytest>=9.0,<10.0.0

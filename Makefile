@@ -22,6 +22,9 @@ shell: ## Open shell in backend container
 dev-backend: dev ## Alias for dev (Backend serves the UI)
 dev-frontend: dev ## Alias for dev (UI is served by Backend)
 
+review: ## have codex review the code
+	codex -q "/review"
+
 test: ## Run tests (Placeholder)
 	@echo "Running tests..."
 	docker compose exec backend pytest || echo "No tests infrastructure set up yet, skipping."

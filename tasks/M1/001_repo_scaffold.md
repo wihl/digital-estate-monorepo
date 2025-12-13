@@ -1,7 +1,7 @@
 # Task M1-001: Repo scaffold (backend + frontend + dev commands)
 
 ## Goal
-Create a runnable repo skeleton with FastAPI backend and Jinja2/HTMX frontend, plus standard dev commands.
+Create a runnable repo skeleton with FastAPI backend which serves Jinja2/HTMX, plus standard dev commands.
 
 ## Scope
 - Add backend scaffold (FastAPI) with /health.
@@ -12,7 +12,7 @@ Create a runnable repo skeleton with FastAPI backend and Jinja2/HTMX frontend, p
 - No DB yet.
 
 ## Steps
-1) Create folders: backend/, f tools/, tasks/.
+1) Create folders: backend/, tools/, tasks/.
 2) Backend: FastAPI app with GET /health returning {"status": "ok", "message": "Backend is running"}.
 3) Add dev commands:
    - backend: `make dev-backend` (or equivalent)
@@ -23,5 +23,5 @@ Create a runnable repo skeleton with FastAPI backend and Jinja2/HTMX frontend, p
 
 
 ## Definition of Done
-- [ ] Repo runs backend + frontend locally
+- [ ] Repo runs backend locally
 - [ ] README includes setup prerequisites (python 3.11+, node)
