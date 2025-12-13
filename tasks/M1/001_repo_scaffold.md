@@ -25,3 +25,10 @@ Create a runnable repo skeleton with FastAPI backend which serves Jinja2/HTMX, p
 ## Definition of Done
 - [ ] Repo runs backend locally
 - [ ] README includes setup prerequisites (python 3.11+, node)
+
+## Status
+Completed: 2025-12-13
+Commit: [main ec52ceb]
+Notes: (optional)
+
+
