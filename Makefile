@@ -1,4 +1,4 @@
-.PHONY: help dev up down logs shell clean test
+.PHONY: help dev up down logs shell clean test review review-staged review-working
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -22,9 +22,29 @@ shell: ## Open shell in backend container
 dev-backend: dev ## Alias for dev (Backend serves the UI)
 dev-frontend: dev ## Alias for dev (UI is served by Backend)
 
-review: ## have codex review the code
-	codex -q "/review"
+review: review-staged ## Review staged changes with Codex (before commit)
 
+review-staged: ## Have Codex review staged changes (git diff --cached)
+	@bash -lc 'set -euo pipefail; \
+	if git diff --cached --quiet; then \
+	  echo "No staged changes to review. Stage changes first (e.g., git add -p)."; exit 0; \
+	fi; \
+	DIFF="$$(git diff --cached)"; \
+	codex "You are reviewing a staged Git diff for the Digital Estate MVP. \
+Focus on correctness, consistency with MVP constraints and INVARIANTS.md, and anything likely to break docker compose dev flow. \
+Avoid large refactors; suggest only necessary fixes. \
+Here is the staged diff:\n\n$$DIFF"'
+
+review-working: ## Have Codex review unstaged working-tree changes (git diff)
+	@bash -lc 'set -euo pipefail; \
+	if git diff --quiet; then \
+	  echo "No unstaged changes to review."; exit 0; \
+	fi; \
+	DIFF="$$(git diff)"; \
+	codex "You are reviewing an unstaged Git diff for the Digital Estate MVP. \
+Focus on correctness, MVP constraints, and anything likely to break docker compose dev flow. \
+Avoid large refactors; suggest only necessary fixes. \
+Here is the diff:\n\n$$DIFF"'
 test: ## Run tests (Placeholder)
 	@echo "Running tests..."
 	docker compose exec backend pytest || echo "No tests infrastructure set up yet, skipping."
