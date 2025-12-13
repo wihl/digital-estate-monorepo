@@ -25,5 +25,8 @@ Implement safe file writes appropriate for ExFAT and add startup cleanup of orph
 - If a fake *.tmp exists, startup cleanup removes it.
 
 ## Definition of Done
-- [ ] Utility functions exist and are tested
-- [ ] Cleanup runs at app startup (after archive root is configured)
+- [x] Utility functions exist and are tested
+- [x] Cleanup runs at app startup (after archive root is configured)
+
+## Status
+- [x] Completed (2025-12-13)

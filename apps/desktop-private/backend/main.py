@@ -12,7 +12,7 @@ import os
 import shutil
 from routers import people
 from pathlib import Path
-from ingest_logic.archive import bootstrap_archive
+from ingest_logic.archive import bootstrap_archive, cleanup_temp_files
 
 app = FastAPI()
 
@@ -170,4 +170,16 @@ def set_archive_root(req: ArchiveRootRequest):
         raise HTTPException(status_code=500, detail="Failed to initialize archive root due to an internal system error.")
     
     config_manager.set_archive_root(str(p))
+    # Cleanup any leftover temps in the new root
+    cleanup_temp_files(p)
     return {"status": "updated", "archive_root": str(p)}
+
+@app.on_event("startup")
+async def startup_event():
+    cfg = config_manager.load()
+    if cfg.archive_root:
+        p = Path(cfg.archive_root)
+        if p.exists() and p.is_dir():
+            count = cleanup_temp_files(p)
+            if count > 0:
+                print(f"Startup: Cleaned up {count} temporary files.")
