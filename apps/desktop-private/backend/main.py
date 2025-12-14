@@ -82,7 +82,7 @@ async def create_person(
             dob=dob,
             bio=bio
         )
-        return f'<option value="{person["slug"]}" selected>{person["display_name"]} ({person["id"]})</option>'
+        return f'<option value="{person.slug}" selected>{person.display_name} ({person.id})</option>'
     except Exception as e:
         import traceback
         traceback.print_exc()

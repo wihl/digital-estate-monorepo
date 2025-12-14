@@ -15,4 +15,5 @@ services:
       - SSD_MOUNT_PATH=/data
       - TRANSCRIPTION_PROVIDER=local # Change to 'gemini' to use Cloud
       # - GEMINI_API_KEY=your_key_here
+      - PYTHONPATH=/app/packages/contracts/src:/app/packages/ingest-logic/src:$PYTHONPATH
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
