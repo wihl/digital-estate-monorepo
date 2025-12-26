@@ -13,6 +13,7 @@ import shutil
 from routers import people
 from pathlib import Path
 from ingest_logic.archive import bootstrap_archive, cleanup_temp_files
+from contracts.models import Person
 
 app = FastAPI()
 

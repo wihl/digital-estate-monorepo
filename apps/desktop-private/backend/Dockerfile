@@ -1,20 +1,24 @@
+# Start from Python
 FROM python:3.11-slim
 
-# Set working directory to the monorepo root initially to copy packages
-WORKDIR /app
+# 1. Set the working directory to the 'root' of the container's monorepo
+WORKDIR /monorepo
 
-# Copy the shared package and install it
-# Copy the shared package and install it
-COPY packages/ingest-logic ./packages/ingest-logic
-RUN --mount=type=cache,target=/root/.cache/pip pip install -e ./packages/ingest-logic
+# 2. COPY the shared packages first (so they are available for pip)
+COPY packages ./packages
 
-# Now setup the backend
-WORKDIR /app/apps/desktop-private/backend
+# 3. COPY the backend requirements to their correct nested location
+COPY apps/desktop-private/backend/requirements.txt ./apps/desktop-private/backend/requirements.txt
 
-COPY apps/desktop-private/backend/requirements.txt .
-RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
+# 4. Change directory to where requirements.txt is
+# This ensures the relative path "../../../packages" resolves correctly
+WORKDIR /monorepo/apps/desktop-private/backend
 
-# Copy backend code
+# 5. Install dependencies
+# Now pip can find "packages/contracts" by going up 3 levels
+RUN pip install -r requirements.txt
+
+# 6. Finally, copy the rest of the application code
 COPY apps/desktop-private/backend .
 
-# The WORKDIR is already set correctly for the backend to run
+# ... rest of your Dockerfile (CMD, EXPOSE, etc)

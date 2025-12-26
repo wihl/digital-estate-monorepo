@@ -3,7 +3,7 @@ from typing import List, Optional
 from enum import Enum
 
 # Strict validation patterns
-BASE36_ID_PATTERN = r"^[0-9a-z]+$"
+BASE36_ID_PATTERN = r"^[a-zA-Z0-9_,.-]+$"
 
 class PersonNameType(str, Enum):
     PRIMARY = "primary"

@@ -6,11 +6,10 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./apps/desktop-private/backend:/app/apps/desktop-private/backend
-      - ./packages:/app/packages # Enable hot-reloading for shared logic
-      # - /Volumes/DestateSSD:/data # SSD Not mounted
-      - ./tmp_data:/data # Fallback for local testing
-      - "${HOME}/Library/Application Support/DigitalEstateMVP:/root/.config/digital-estate-mvp" # Persist config in User Home (Mac)
+      # 1. Sync the Backend Code
+      - ./apps/desktop-private/backend:/monorepo/apps/desktop-private/backend
+      # 2. Sync the Shared Packages (Critical for editing Contracts!)
+      - ./packages:/monorepo/packages
     environment:
       - SSD_MOUNT_PATH=/data
       - TRANSCRIPTION_PROVIDER=local # Change to 'gemini' to use Cloud
